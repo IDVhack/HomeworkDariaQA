@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ГРАММ — лаборатория рациона</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --paper:#F5F3EC;
+    --surface:#FFFFFF;
+    --ink:#20241F;
+    --ink-soft:#5B6058;
+    --line:#DEDACB;
+    --line-strong:#C7C2AE;
+
+    --protein:#B8432A;
+    --protein-soft:#F1DCD3;
+    --fat:#C68F2E;
+    --fat-soft:#F1E4C7;
+    --carbs:#3E7C59;
+    --carbs-soft:#DCE9DF;
+    --kcal:#2B4C7E;
+    --kcal-soft:#D9E1EC;
+
+    --radius:10px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  input,select{font-family:inherit;}
+
+  .app{
+    display:grid;
+    grid-template-columns:216px 1fr;
+    min-height:100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:var(--ink);
+    color:#EFEBDD;
+    padding:28px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand-mark{
+    width:34px;height:34px;
+    border-radius:8px;
+    background:conic-gradient(var(--protein) 0 33%, var(--fat) 33% 66%, var(--carbs) 66% 100%);
+    flex:none;
+  }
+  .brand-text h1{
+    font-family:var(--font-display);
+    font-size:17px;
+    letter-spacing:0.04em;
+    margin:0;
+    line-height:1.1;
+  }
+  .brand-text span{
+    display:block;
+    font-size:10.5px;
+    color:#B9B4A0;
+    letter-spacing:0.03em;
+    margin-top:2px;
+  }
+  .nav{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    flex:1;
+  }
+  .nav-btn{
+    all:unset;
+    cursor:pointer;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:13.5px;
+    font-weight:500;
+    color:#CFCABB;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    transition:background .15s ease, color .15s ease;
+  }
+  .nav-btn .num{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:#8B8672;
+    width:16px;
+  }
+  .nav-btn:hover{background:#2D3229; color:#EFEBDD;}
+  .nav-btn.active{background:#EFEBDD; color:var(--ink);}
+  .nav-btn.active .num{color:var(--ink-soft);}
+  .sidebar-foot{
+    font-size:11px;
+    color:#7C7867;
+    line-height:1.5;
+    border-top:1px solid #333828;
+    padding-top:14px;
+  }
+
+  /* ---------- Main ---------- */
+  .main{
+    padding:34px 40px 60px;
+    max-width:980px;
+  }
+  .tab{display:none;}
+  .tab.active{display:block;}
+
+  .page-head{
+    margin-bottom:24px;
+  }
+  .page-head h2{
+    font-family:var(--font-display);
+    font-size:24px;
+    margin:0 0 4px;
+  }
+  .page-head p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .card + .card{margin-top:16px;}
+
+  .card h3{
+    font-family:var(--font-display);
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin:0 0 14px;
+    color:var(--ink-soft);
+  }
+
+  label{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  input[type=text], input[type=number], select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:var(--paper);
+    color:var(--ink);
+    font-size:13.5px;
+  }
+  input:focus, select:focus{
+    outline:2px solid var(--kcal);
+    outline-offset:1px;
+    background:#fff;
+  }
+  .field{margin-bottom:12px;}
+  .row-fields{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+  }
+  .row-fields-2{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:12px;
+    align-items:end;
+  }
+
+  .btn{
+    all:unset;
+    cursor:pointer;
+    padding:9px 16px;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:600;
+    text-align:center;
+    transition:opacity .15s ease, transform .05s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--ink); color:#EFEBDD;}
+  .btn-primary:hover{opacity:.85;}
+  .btn-primary:disabled{opacity:.35; cursor:not-allowed;}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border:1px solid var(--line-strong);}
+  .btn-ghost:hover{background:var(--paper);}
+  .btn-danger{background:transparent; color:var(--protein); border:1px solid var(--protein-soft);}
+  .btn-danger:hover{background:var(--protein-soft);}
+  .btn-sm{padding:6px 10px; font-size:12px;}
+
+  table{width:100%; border-collapse:collapse;}
+  th{
+    text-align:left;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    padding:0 10px 8px;
+    border-bottom:1px solid var(--line);
+    font-weight:600;
+  }
+  td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--line);
+    font-size:13.5px;
+    vertical-align:middle;
+  }
+  tr:last-child td{border-bottom:none;}
+  .num-cell{font-family:var(--font-mono); font-size:13px;}
+  .empty-row td{
+    text-align:center;
+    color:var(--ink-soft);
+    font-style:normal;
+    padding:22px 10px;
+    font-size:13px;
+  }
+
+  /* ---------- Stat cards / macro dashboard ---------- */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .stat-card{
+    border-radius:8px;
+    padding:12px 14px;
+    background:var(--paper);
+    border-top:3px solid var(--line-strong);
+  }
+  .stat-card.kcal{border-top-color:var(--kcal);}
+  .stat-card.protein{border-top-color:var(--protein);}
+  .stat-card.fat{border-top-color:var(--fat);}
+  .stat-card.carbs{border-top-color:var(--carbs);}
+  .stat-card .label{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em;}
+  .stat-card .value{font-family:var(--font-mono); font-size:20px; font-weight:600; margin-top:2px;}
+  .stat-card .unit{font-size:11px; color:var(--ink-soft); font-family:var(--font-body);}
+
+  .macro-bar{
+    height:22px;
+    border-radius:6px;
+    overflow:hidden;
+    display:flex;
+    border:1px solid var(--line);
+  }
+  .macro-bar div{height:100%;}
+  .macro-bar .p{background:var(--protein);}
+  .macro-bar .f{background:var(--fat);}
+  .macro-bar .c{background:var(--carbs);}
+  .macro-legend{
+    display:flex;
+    gap:16px;
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .macro-legend span{display:flex; align-items:center; gap:5px;}
+  .dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .dot.p{background:var(--protein);}
+  .dot.f{background:var(--fat);}
+  .dot.c{background:var(--carbs);}
+
+  .inline-form{
+    display:flex;
+    gap:10px;
+    align-items:end;
+  }
+  .inline-form .field{flex:1; margin-bottom:0;}
+
+  .pill{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:20px;
+    font-size:10.5px;
+    font-weight:600;
+    font-family:var(--font-mono);
+  }
+  .pill.good{background:var(--carbs-soft); color:var(--carbs);}
+  .pill.mid{background:var(--fat-soft); color:#8A6A1E;}
+  .pill.bad{background:var(--protein-soft); color:var(--protein);}
+
+  .recipe-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:12px;
+    background:var(--surface);
+  }
+  .recipe-card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    cursor:pointer;
+  }
+  .recipe-card-head h4{
+    font-family:var(--font-display);
+    font-size:16px;
+    margin:0 0 4px;
+  }
+  .recipe-meta{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-family:var(--font-mono);
+  }
+  .recipe-body{
+    margin-top:14px;
+    display:none;
+  }
+  .recipe-body.open{display:block;}
+  .recipe-actions{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+
+  .warn-note{
+    font-size:12px;
+    color:var(--protein);
+    background:var(--protein-soft);
+    border-radius:6px;
+    padding:6px 10px;
+    margin-top:8px;
+  }
+
+  .finder-result{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr 1fr auto;
+    gap:10px;
+    align-items:center;
+    padding:11px 10px;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .finder-result:last-child{border-bottom:none;}
+  .finder-head-row{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr 1fr auto;
+    gap:10px;
+    padding:0 10px 8px;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    border-bottom:1px solid var(--line);
+    font-weight:600;
+  }
+  .diff{font-family:var(--font-mono); font-size:12.5px;}
+  .diff.pos{color:var(--carbs);}
+  .diff.neg{color:var(--protein);}
+
+  .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  select.ing-select{margin-bottom:0;}
+
+  .ing-combo{position:relative;}
+  .ing-dropdown{
+    position:absolute;
+    left:0; right:0; top:calc(100% + 4px);
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    max-height:220px;
+    overflow-y:auto;
+    z-index:30;
+    box-shadow:0 8px 20px rgba(32,36,31,.12);
+  }
+  .ing-dropdown-item{
+    padding:8px 10px;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .ing-dropdown-item:hover, .ing-dropdown-item.active{
+    background:var(--paper);
+  }
+  .ing-dropdown-empty{
+    padding:8px 10px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{flex-direction:row; align-items:center; overflow-x:auto; padding:14px 16px;}
+    .sidebar-foot{display:none;}
+    .nav{flex-direction:row;}
+    .main{padding:22px 18px 50px;}
+    .stat-grid, .row-fields{grid-template-columns:repeat(2,1fr);}
+    .finder-result, .finder-head-row{grid-template-columns:1fr 1fr 1fr; row-gap:4px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <h1>ГРАММ</h1>
+        <span>лаборатория рациона</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="calc"><span class="num">01</span> Калькулятор</button>
+      <button class="nav-btn" data-tab="ingredients"><span class="num">02</span> Ингредиенты</button>
+      <button class="nav-btn" data-tab="recipes"><span class="num">03</span> Рецепты</button>
+      <button class="nav-btn" data-tab="finder"><span class="num">04</span> Подбор блюд</button>
+    </nav>
+    <div class="sidebar-foot">Все данные хранятся локально в вашем браузере (localStorage). Ничего не отправляется на сервер.</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ================= CALCULATOR ================= -->
+    <section id="tab-calc" class="tab active">
+      <div class="page-head">
+        <h2>Калькулятор порции</h2>
+        <p>Добавляйте ингредиенты и граммовки — калории и БЖУ считаются автоматически.</p>
+      </div>
+
+      <div class="card">
+        <h3>Добавить ингредиент</h3>
+        <div class="inline-form">
+          <div class="field ing-combo">
+            <label for="calc-ing-search">Ингредиент</label>
+            <input type="text" id="calc-ing-search" class="ing-select" autocomplete="off" placeholder="Начните вводить название…">
+            <div id="calc-ing-dropdown" class="ing-dropdown" hidden></div>
+          </div>
+          <div class="field" style="max-width:120px;">
+            <label for="calc-ing-qty">Количество</label>
+            <input type="number" id="calc-ing-qty" min="0" step="1" value="100">
+          </div>
+          <div class="field" style="max-width:150px;">
+            <label for="calc-ing-unit">Ед. изм.</label>
+            <select id="calc-ing-unit">
+              <option value="g">г</option>
+              <option value="pcs">шт</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="calc-add-btn">Добавить</button>
+        </div>
+        <p class="hint" id="calc-empty-hint" style="display:none;">Сначала добавьте хотя бы один ингредиент во вкладке «Ингредиенты».</p>
+      </div>
+
+      <div class="card">
+        <h3>Состав порции</h3>
+        <table>
+          <thead>
+            <tr><th>Ингредиент</th><th>Граммы</th><th>Ккал</th><th>Белки</th><th>Жиры</th><th>Углеводы</th><th></th></tr>
+          </thead>
+          <tbody id="calc-items-body"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Итого</h3>
+        <div class="stat-grid" id="calc-stats"></div>
+        <div class="macro-bar" id="calc-macrobar"></div>
+        <div class="macro-legend">
+          <span><i class="dot p"></i>Белки</span>
+          <span><i class="dot f"></i>Жиры</span>
+          <span><i class="dot c"></i>Углеводы</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Сохранить как рецепт</h3>
+        <div class="inline-form">
+          <div class="field">
+            <label for="calc-recipe-name">Название рецепта</label>
+            <input type="text" id="calc-recipe-name" placeholder="Например, «Овсянка с бананом»">
+          </div>
+          <button class="btn btn-primary" id="calc-save-recipe-btn">Сохранить рецепт</button>
+          <button class="btn btn-ghost" id="calc-clear-btn">Очистить</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INGREDIENTS ================= -->
+    <section id="tab-ingredients" class="tab">
+      <div class="page-head">
+        <h2>База ингредиентов</h2>
+        <p>Значения указываются на 100&nbsp;г продукта. Можно редактировать и удалять любые записи, включая базовые.</p>
+      </div>
+
+      <div class="card">
+        <h3>Новый ингредиент</h3>
+        <div class="row-fields">
+          <div class="field">
+            <label>Название</label>
+            <input type="text" id="ing-name" placeholder="Куриная грудка">
+          </div>
+          <div class="field">
+            <label>Ккал / 100г</label>
+            <input type="number" id="ing-kcal" min="0" step="0.1">
+          </div>
+          <div class="field">
+            <label>Белки, г / 100г</label>
+            <input type="number" id="ing-protein" min="0" step="0.1">
+          </div>
+          <div class="field">
+            <label>Жиры, г / 100г</label>
+            <input type="number" id="ing-fat" min="0" step="0.1">
+          </div>
+        </div>
+        <div class="row-fields" style="grid-template-columns:1fr 1fr auto;">
+          <div class="field">
+            <label>Углеводы, г / 100г</label>
+            <input type="number" id="ing-carbs" min="0" step="0.1">
+          </div>
+          <div class="field">
+            <label>Вес 1 шт, г (необязательно)</label>
+            <input type="number" id="ing-piece-grams" min="0" step="0.1" placeholder="например, 60">
+          </div>
+          <div class="field" style="align-self:end;">
+            <button class="btn btn-primary" id="ing-add-btn">Добавить ингредиент</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Список ингредиентов (<span id="ing-count">0</span>)</h3>
+        <table>
+          <thead>
+            <tr><th>Название</th><th>Ккал</th><th>Белки</th><th>Жиры</th><th>Углеводы</th><th>1 шт, г</th><th></th></tr>
+          </thead>
+          <tbody id="ingredients-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= RECIPES ================= -->
+    <section id="tab-recipes" class="tab">
+      <div class="page-head">
+        <h2>Рецепты</h2>
+        <p>Сохранённые блюда, собранные из ингредиентов. Значения пересчитываются автоматически при изменении базы.</p>
+      </div>
+      <div id="recipes-list"></div>
+      <p class="hint" id="recipes-empty-hint" style="display:none;">Пока нет ни одного рецепта. Соберите его во вкладке «Калькулятор» и нажмите «Сохранить рецепт».</p>
+    </section>
+
+    <!-- ================= FINDER ================= -->
+    <section id="tab-finder" class="tab">
+      <div class="page-head">
+        <h2>Подбор блюд под БЖУ</h2>
+        <p>Задайте целевые калории и БЖУ — рецепты отсортируются по близости к цели. Оставьте поле «0», если оно не важно.</p>
+      </div>
+
+      <div class="card">
+        <h3>Целевые значения</h3>
+        <div class="row-fields">
+          <div class="field">
+            <label>Калории, ккал</label>
+            <input type="number" id="find-kcal" min="0" step="1" value="0">
+          </div>
+          <div class="field">
+            <label>Белки, г</label>
+            <input type="number" id="find-protein" min="0" step="1" value="0">
+          </div>
+          <div class="field">
+            <label>Жиры, г</label>
+            <input type="number" id="find-fat" min="0" step="1" value="0">
+          </div>
+          <div class="field">
+            <label>Углеводы, г</label>
+            <input type="number" id="find-carbs" min="0" step="1" value="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Результаты</h3>
+        <div class="finder-head-row">
+          <div>Рецепт</div><div>Ккал</div><div>Белки</div><div>Жиры</div><div>Углеводы</div><div>Совпадение</div>
+        </div>
+        <div id="finder-results"></div>
+        <p class="hint" id="finder-empty-hint" style="display:none;">Нет сохранённых рецептов для подбора — сначала создайте хотя бы один.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Storage helpers ---------------- */
+  const LS_ING = 'gramm_ingredients';
+  const LS_REC = 'gramm_recipes';
+  const LS_CALC = 'gramm_calc_items';
+
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  }
+
+  function loadJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      return parsed;
+    }catch(e){
+      console.warn('Не удалось прочитать', key, e);
+      return fallback;
+    }
+  }
+  function saveJSON(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  const DEFAULT_INGREDIENTS = [
+    {name:"Куриная грудка (варёная)", kcal:165, protein:31, fat:3.6, carbs:0},
+    {name:"Яйцо куриное", kcal:157, protein:12.7, fat:11.5, carbs:0.7},
+    {name:"Рис белый (варёный)", kcal:130, protein:2.4, fat:0.3, carbs:28},
+    {name:"Гречка (варёная)", kcal:110, protein:4.2, fat:1.1, carbs:21.3},
+    {name:"Овсянка (сухая)", kcal:366, protein:12.5, fat:6.5, carbs:61.9},
+    {name:"Молоко 2.5%", kcal:52, protein:2.8, fat:2.5, carbs:4.7},
+    {name:"Творог 5%", kcal:121, protein:17.2, fat:5, carbs:1.8},
+    {name:"Банан", kcal:96, protein:1.5, fat:0.2, carbs:21},
+    {name:"Яблоко", kcal:47, protein:0.4, fat:0.4, carbs:9.8},
+    {name:"Оливковое масло", kcal:898, protein:0, fat:99.8, carbs:0},
+    {name:"Хлеб цельнозерновой", kcal:247, protein:9.6, fat:3.6, carbs:44.4},
+    {name:"Лосось (запечённый)", kcal:206, protein:22, fat:12, carbs:0},
+    {name:"Говядина (варёная)", kcal:254, protein:26, fat:16, carbs:0},
+    {name:"Картофель (варёный)", kcal:82, protein:2, fat:0.4, carbs:16.7},
+    {name:"Брокколи (варёная)", kcal:35, protein:2.4, fat:0.4, carbs:7.2},
+    {name:"Миндаль", kcal:576, protein:21, fat:49, carbs:22},
+    {name:"Мёд", kcal:304, protein:0.3, fat:0, carbs:82.4},
+    {name:"Греческий йогурт 2%", kcal:73, protein:8.9, fat:1.9, carbs:3.8},
+    {name:"Сыр творожный (мягкий)", kcal:342, protein:5.9, fat:34.2, carbs:2.9},
+    {name:"Макароны (варёные)", kcal:158, protein:5.8, fat:0.9, carbs:30.9}
+  ].map(x => Object.assign({id: uid(), custom:false}, x));
+
+  /* ---------------- State ---------------- */
+  let ingredients = loadJSON(LS_ING, null) || DEFAULT_INGREDIENTS;
+  if(!loadJSON(LS_ING, null)) saveJSON(LS_ING, ingredients);
+
+  let recipes = loadJSON(LS_REC, []);
+  let calcItems = loadJSON(LS_CALC, []); // [{ingredientId, grams}]
+
+  function persistIngredients(){ saveJSON(LS_ING, ingredients); }
+  function persistRecipes(){ saveJSON(LS_REC, recipes); }
+  function persistCalc(){ saveJSON(LS_CALC, calcItems); }
+
+  function findIngredient(id){
+    return ingredients.find(i => i.id === id);
+  }
+
+  function fmt(n, digits){
+    if(digits === undefined) digits = 1;
+    if(!isFinite(n)) n = 0;
+    const rounded = Math.round(n * Math.pow(10, digits)) / Math.pow(10, digits);
+    return rounded.toLocaleString('ru-RU', {maximumFractionDigits: digits, minimumFractionDigits: 0});
+  }
+
+  /* Compute totals from a list of {ingredientId, grams} */
+  function computeTotals(items){
+    let kcal=0, protein=0, fat=0, carbs=0, missing=false;
+    items.forEach(it => {
+      const ing = findIngredient(it.ingredientId);
+      if(!ing){ missing = true; return; }
+      const factor = it.grams / 100;
+      kcal += ing.kcal * factor;
+      protein += ing.protein * factor;
+      fat += ing.fat * factor;
+      carbs += ing.carbs * factor;
+    });
+    return {kcal, protein, fat, carbs, missing};
+  }
+
+  function macroBarSegments(protein, fat, carbs){
+    const pKcal = protein*4, fKcal = fat*9, cKcal = carbs*4;
+    const total = pKcal + fKcal + cKcal;
+    if(total <= 0) return {p:0,f:0,c:0};
+    return {
+      p: pKcal/total*100,
+      f: fKcal/total*100,
+      c: cKcal/total*100
+    };
+  }
+
+  function renderStatGrid(container, totals){
+    container.innerHTML = `
+      <div class="stat-card kcal">
+        <div class="label">Калории</div>
+        <div class="value">${fmt(totals.kcal,0)}</div>
+        <div class="unit">ккал</div>
+      </div>
+      <div class="stat-card protein">
+        <div class="label">Белки</div>
+        <div class="value">${fmt(totals.protein)}</div>
+        <div class="unit">г</div>
+      </div>
+      <div class="stat-card fat">
+        <div class="label">Жиры</div>
+        <div class="value">${fmt(totals.fat)}</div>
+        <div class="unit">г</div>
+      </div>
+      <div class="stat-card carbs">
+        <div class="label">Углеводы</div>
+        <div class="value">${fmt(totals.carbs)}</div>
+        <div class="unit">г</div>
+      </div>`;
+  }
+
+  function renderMacroBar(container, totals){
+    const seg = macroBarSegments(totals.protein, totals.fat, totals.carbs);
+    container.innerHTML = `
+      <div class="p" style="width:${seg.p}%"></div>
+      <div class="f" style="width:${seg.f}%"></div>
+      <div class="c" style="width:${seg.c}%"></div>`;
+  }
+
+  /* ---------------- Tabs ---------------- */
+  const navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if(btn.dataset.tab === 'recipes') renderRecipes();
+      if(btn.dataset.tab === 'finder') renderFinder();
+      if(btn.dataset.tab === 'calc') populateCalcSelect();
+    });
+  });
+
+  /* ================= CALCULATOR ================= */
+  const calcSearch = document.getElementById('calc-ing-search');
+  const calcDropdown = document.getElementById('calc-ing-dropdown');
+  const calcQty = document.getElementById('calc-ing-qty');
+  const calcUnit = document.getElementById('calc-ing-unit');
+  const calcAddBtn = document.getElementById('calc-add-btn');
+  let calcSelectedId = null;
+  const calcBody = document.getElementById('calc-items-body');
+  const calcStats = document.getElementById('calc-stats');
+  const calcMacrobar = document.getElementById('calc-macrobar');
+  const calcEmptyHint = document.getElementById('calc-empty-hint');
+  const calcRecipeName = document.getElementById('calc-recipe-name');
+  const calcSaveRecipeBtn = document.getElementById('calc-save-recipe-btn');
+  const calcClearBtn = document.getElementById('calc-clear-btn');
+
+  function populateCalcSelect(){
+    if(calcSelectedId && !findIngredient(calcSelectedId)){
+      calcSelectedId = null;
+      calcSearch.value = '';
+    }
+    const hasIngredients = ingredients.length > 0;
+    calcEmptyHint.style.display = hasIngredients ? 'none' : 'block';
+    calcAddBtn.disabled = !hasIngredients;
+    calcSearch.disabled = !hasIngredients;
+    updateCalcUnitOptions();
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* ---- Ингредиент: поиск с выпадающим списком ---- */
+  function renderCalcDropdown(filterText){
+    const q = (filterText || '').trim().toLowerCase();
+    const list = ingredients.filter(i => !q || i.name.toLowerCase().includes(q));
+    if(list.length === 0){
+      calcDropdown.innerHTML = `<div class="ing-dropdown-empty">Ничего не найдено</div>`;
+    } else {
+      calcDropdown.innerHTML = list.map(i => `<div class="ing-dropdown-item" data-id="${i.id}">${escapeHtml(i.name)}</div>`).join('');
+      calcDropdown.querySelectorAll('[data-id]').forEach(el => {
+        el.addEventListener('click', () => selectCalcIngredient(el.dataset.id));
+      });
+    }
+    calcDropdown.hidden = false;
+  }
+
+  function selectCalcIngredient(id){
+    const ing = findIngredient(id);
+    if(!ing) return;
+    calcSelectedId = id;
+    calcSearch.value = ing.name;
+    calcDropdown.hidden = true;
+    updateCalcUnitOptions();
+  }
+
+  function updateCalcUnitOptions(){
+    const ing = calcSelectedId ? findIngredient(calcSelectedId) : null;
+    const hasPieces = !!(ing && ing.pieceGrams > 0);
+    const pcsOption = calcUnit.querySelector('option[value="pcs"]');
+    pcsOption.disabled = !hasPieces;
+    pcsOption.textContent = hasPieces ? `шт (${fmt(ing.pieceGrams,1)} г/шт)` : 'шт (не задано)';
+    if(!hasPieces && calcUnit.value === 'pcs') calcUnit.value = 'g';
+  }
+
+  calcSearch.addEventListener('focus', () => renderCalcDropdown(calcSearch.value));
+  calcSearch.addEventListener('input', () => {
+    calcSelectedId = null;
+    renderCalcDropdown(calcSearch.value);
+    updateCalcUnitOptions();
+  });
+  document.addEventListener('click', (e) => {
+    if(e.target !== calcSearch && !calcDropdown.contains(e.target)) calcDropdown.hidden = true;
+  });
+
+  function renderCalc(){
+    if(calcItems.length === 0){
+      calcBody.innerHTML = `<tr class="empty-row"><td colspan="7">Список пуст — добавьте первый ингредиент выше.</td></tr>`;
+    } else {
+      calcBody.innerHTML = calcItems.map((it, idx) => {
+        const ing = findIngredient(it.ingredientId);
+        if(!ing){
+          return `<tr>
+            <td colspan="6" style="color:var(--protein);">Ингредиент удалён из базы</td>
+            <td><button class="btn btn-danger btn-sm" data-remove="${idx}">✕</button></td>
+          </tr>`;
+        }
+        const f = it.grams/100;
+        return `<tr>
+          <td>${escapeHtml(ing.name)}</td>
+          <td class="num-cell">
+            <input type="number" min="0" step="1" value="${it.grams}" data-grams-idx="${idx}"
+              style="width:70px; padding:5px 6px; border:1px solid var(--line-strong); border-radius:5px; background:var(--paper); font-family:var(--font-mono);">
+          </td>
+          <td class="num-cell">${fmt(ing.kcal*f,0)}</td>
+          <td class="num-cell">${fmt(ing.protein*f)}</td>
+          <td class="num-cell">${fmt(ing.fat*f)}</td>
+          <td class="num-cell">${fmt(ing.carbs*f)}</td>
+          <td><button class="btn btn-danger btn-sm" data-remove="${idx}">✕</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    const totals = computeTotals(calcItems);
+    renderStatGrid(calcStats, totals);
+    renderMacroBar(calcMacrobar, totals);
+
+    calcSaveRecipeBtn.disabled = calcItems.length === 0;
+
+    calcBody.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        calcItems.splice(Number(btn.dataset.remove), 1);
+        persistCalc();
+        renderCalc();
+      });
+    });
+    calcBody.querySelectorAll('[data-grams-idx]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const idx = Number(inp.dataset.gramsIdx);
+        const val = Math.max(0, Number(inp.value) || 0);
+        calcItems[idx].grams = val;
+        persistCalc();
+        const totals2 = computeTotals(calcItems);
+        renderStatGrid(calcStats, totals2);
+        renderMacroBar(calcMacrobar, totals2);
+      });
+    });
+  }
+
+  calcAddBtn.addEventListener('click', () => {
+    if(!calcSelectedId){ calcSearch.focus(); return; }
+    const ing = findIngredient(calcSelectedId);
+    if(!ing) return;
+    const qty = Math.max(0, Number(calcQty.value) || 0);
+    if(qty <= 0) { calcQty.focus(); return; }
+    const usePieces = calcUnit.value === 'pcs' && ing.pieceGrams > 0;
+    const grams = usePieces ? qty * ing.pieceGrams : qty;
+    const existing = calcItems.find(it => it.ingredientId === calcSelectedId);
+    if(existing){
+      existing.grams += grams;
+    } else {
+      calcItems.push({ingredientId: calcSelectedId, grams});
+    }
+    persistCalc();
+    renderCalc();
+    calcQty.value = 100;
+    calcUnit.value = 'g';
+    updateCalcUnitOptions();
+  });
+
+  calcClearBtn.addEventListener('click', () => {
+    if(calcItems.length && !confirm('Очистить текущий список ингредиентов?')) return;
+    calcItems = [];
+    persistCalc();
+    renderCalc();
+  });
+
+  calcSaveRecipeBtn.addEventListener('click', () => {
+    const name = calcRecipeName.value.trim();
+    if(!name){ calcRecipeName.focus(); return; }
+    if(calcItems.length === 0) return;
+    recipes.push({
+      id: uid(),
+      name,
+      items: calcItems.map(it => ({ingredientId: it.ingredientId, grams: it.grams})),
+      createdAt: Date.now()
+    });
+    persistRecipes();
+    calcRecipeName.value = '';
+    alert('Рецепт «' + name + '» сохранён.');
+  });
+
+  /* ================= INGREDIENTS ================= */
+  const ingBody = document.getElementById('ingredients-body');
+  const ingCount = document.getElementById('ing-count');
+  const ingName = document.getElementById('ing-name');
+  const ingKcal = document.getElementById('ing-kcal');
+  const ingProtein = document.getElementById('ing-protein');
+  const ingFat = document.getElementById('ing-fat');
+  const ingCarbs = document.getElementById('ing-carbs');
+  const ingPieceGrams = document.getElementById('ing-piece-grams');
+  const ingAddBtn = document.getElementById('ing-add-btn');
+
+  let editingIngredientId = null;
+
+  function renderIngredients(){
+    ingCount.textContent = ingredients.length;
+    if(ingredients.length === 0){
+      ingBody.innerHTML = `<tr class="empty-row"><td colspan="7">Ингредиентов пока нет.</td></tr>`;
+      return;
+    }
+    ingBody.innerHTML = ingredients.map(ing => {
+      if(editingIngredientId === ing.id){
+        return `<tr>
+          <td><input type="text" data-edit="name" value="${escapeHtml(ing.name)}" style="width:100%;"></td>
+          <td><input type="number" step="0.1" data-edit="kcal" value="${ing.kcal}" style="width:70px;"></td>
+          <td><input type="number" step="0.1" data-edit="protein" value="${ing.protein}" style="width:60px;"></td>
+          <td><input type="number" step="0.1" data-edit="fat" value="${ing.fat}" style="width:60px;"></td>
+          <td><input type="number" step="0.1" data-edit="carbs" value="${ing.carbs}" style="width:60px;"></td>
+          <td><input type="number" step="0.1" data-edit="pieceGrams" value="${ing.pieceGrams || ''}" placeholder="—" style="width:70px;"></td>
+          <td style="white-space:nowrap;">
+            <button class="btn btn-primary btn-sm" data-save-ing="${ing.id}">Сохранить</button>
+            <button class="btn btn-ghost btn-sm" data-cancel-edit>Отмена</button>
+          </td>
+        </tr>`;
+      }
+      return `<tr>
+        <td>${escapeHtml(ing.name)}</td>
+        <td class="num-cell">${fmt(ing.kcal,0)}</td>
+        <td class="num-cell">${fmt(ing.protein)}</td>
+        <td class="num-cell">${fmt(ing.fat)}</td>
+        <td class="num-cell">${fmt(ing.carbs)}</td>
+        <td class="num-cell">${ing.pieceGrams ? fmt(ing.pieceGrams,0) : '—'}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-ghost btn-sm" data-edit-ing="${ing.id}">Изменить</button>
+          <button class="btn btn-danger btn-sm" data-del-ing="${ing.id}">Удалить</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    ingBody.querySelectorAll('[data-edit-ing]').forEach(btn => {
+      btn.addEventListener('click', () => { editingIngredientId = btn.dataset.editIng; renderIngredients(); });
+    });
+    ingBody.querySelectorAll('[data-cancel-edit]').forEach(btn => {
+      btn.addEventListener('click', () => { editingIngredientId = null; renderIngredients(); });
+    });
+    ingBody.querySelectorAll('[data-save-ing]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.saveIng;
+        const row = btn.closest('tr');
+        const ing = findIngredient(id);
+        if(!ing) return;
+        const newName = row.querySelector('[data-edit=name]').value.trim();
+        if(!newName) return;
+        ing.name = newName;
+        ing.kcal = Math.max(0, Number(row.querySelector('[data-edit=kcal]').value) || 0);
+        ing.protein = Math.max(0, Number(row.querySelector('[data-edit=protein]').value) || 0);
+        ing.fat = Math.max(0, Number(row.querySelector('[data-edit=fat]').value) || 0);
+        ing.carbs = Math.max(0, Number(row.querySelector('[data-edit=carbs]').value) || 0);
+        ing.pieceGrams = Math.max(0, Number(row.querySelector('[data-edit=pieceGrams]').value) || 0);
+        editingIngredientId = null;
+        persistIngredients();
+        renderIngredients();
+        populateCalcSelect();
+      });
+    });
+    ingBody.querySelectorAll('[data-del-ing]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.delIng;
+        const usedIn = recipes.filter(r => r.items.some(it => it.ingredientId === id));
+        let msg = 'Удалить этот ингредиент?';
+        if(usedIn.length){
+          msg = 'Ингредиент используется в ' + usedIn.length + ' рецепте(ах). После удаления эти строки в рецептах станут недействительными. Продолжить?';
+        }
+        if(!confirm(msg)) return;
+        ingredients = ingredients.filter(i => i.id !== id);
+        calcItems = calcItems.filter(it => it.ingredientId !== id);
+        persistIngredients();
+        persistCalc();
+        renderIngredients();
+        populateCalcSelect();
+        renderCalc();
+      });
+    });
+  }
+
+  ingAddBtn.addEventListener('click', () => {
+    const name = ingName.value.trim();
+    if(!name){ ingName.focus(); return; }
+    const newIng = {
+      id: uid(),
+      name,
+      kcal: Math.max(0, Number(ingKcal.value) || 0),
+      protein: Math.max(0, Number(ingProtein.value) || 0),
+      fat: Math.max(0, Number(ingFat.value) || 0),
+      carbs: Math.max(0, Number(ingCarbs.value) || 0),
+      pieceGrams: Math.max(0, Number(ingPieceGrams.value) || 0),
+      custom: true
+    };
+    ingredients.push(newIng);
+    persistIngredients();
+    ingName.value=''; ingKcal.value=''; ingProtein.value=''; ingFat.value=''; ingCarbs.value=''; ingPieceGrams.value='';
+    ingName.focus();
+    renderIngredients();
+    populateCalcSelect();
+  });
+
+  /* ================= RECIPES ================= */
+  const recipesList = document.getElementById('recipes-list');
+  const recipesEmptyHint = document.getElementById('recipes-empty-hint');
+  let openRecipeId = null;
+
+  function renderRecipes(){
+    recipesEmptyHint.style.display = recipes.length ? 'none' : 'block';
+    recipesList.innerHTML = recipes.map(r => {
+      const totals = computeTotals(r.items);
+      const open = openRecipeId === r.id;
+      const rowsHtml = r.items.map(it => {
+        const ing = findIngredient(it.ingredientId);
+        if(!ing) return `<tr><td colspan="5" style="color:var(--protein);">Ингредиент удалён из базы</td></tr>`;
+        const f = it.grams/100;
+        return `<tr>
+          <td>${escapeHtml(ing.name)}</td>
+          <td class="num-cell">${fmt(it.grams,0)} г</td>
+          <td class="num-cell">${fmt(ing.kcal*f,0)}</td>
+          <td class="num-cell">${fmt(ing.protein*f)}</td>
+          <td class="num-cell">${fmt(ing.fat*f)}</td>
+          <td class="num-cell">${fmt(ing.carbs*f)}</td>
+        </tr>`;
+      }).join('');
+
+      return `<div class="recipe-card">
+        <div class="recipe-card-head" data-toggle-recipe="${r.id}">
+          <div>
+            <h4>${escapeHtml(r.name)}</h4>
+            <div class="recipe-meta">${fmt(totals.kcal,0)} ккал · Б ${fmt(totals.protein)} · Ж ${fmt(totals.fat)} · У ${fmt(totals.carbs)}</div>
+          </div>
+          <div class="btn btn-ghost btn-sm">${open ? 'Скрыть' : 'Подробнее'}</div>
+        </div>
+        ${totals.missing ? '<div class="warn-note">Часть ингредиентов была удалена из базы — значения могут быть неполными.</div>' : ''}
+        <div class="recipe-body ${open ? 'open' : ''}">
+          <table>
+            <thead><tr><th>Ингредиент</th><th>Кол-во</th><th>Ккал</th><th>Белки</th><th>Жиры</th><th>Углеводы</th></tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          <div class="recipe-actions">
+            <button class="btn btn-ghost btn-sm" data-load-recipe="${r.id}">Загрузить в калькулятор</button>
+            <button class="btn btn-danger btn-sm" data-del-recipe="${r.id}">Удалить рецепт</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    recipesList.querySelectorAll('[data-toggle-recipe]').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.toggleRecipe;
+        openRecipeId = openRecipeId === id ? null : id;
+        renderRecipes();
+      });
+    });
+    recipesList.querySelectorAll('[data-del-recipe]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(!confirm('Удалить этот рецепт?')) return;
+        recipes = recipes.filter(r => r.id !== btn.dataset.delRecipe);
+        persistRecipes();
+        renderRecipes();
+      });
+    });
+    recipesList.querySelectorAll('[data-load-recipe]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const r = recipes.find(x => x.id === btn.dataset.loadRecipe);
+        if(!r) return;
+        if(calcItems.length && !confirm('Заменить текущий список ингредиентов в калькуляторе содержимым этого рецепта?')) return;
+        calcItems = r.items.map(it => ({ingredientId: it.ingredientId, grams: it.grams}));
+        persistCalc();
+        document.querySelector('.nav-btn[data-tab="calc"]').click();
+      });
+    });
+  }
+
+  /* ================= FINDER ================= */
+  const findKcal = document.getElementById('find-kcal');
+  const findProtein = document.getElementById('find-protein');
+  const findFat = document.getElementById('find-fat');
+  const findCarbs = document.getElementById('find-carbs');
+  const finderResults = document.getElementById('finder-results');
+  const finderEmptyHint = document.getElementById('finder-empty-hint');
+
+  function diffLabel(actual, target){
+    if(target <= 0) return '';
+    const d = actual - target;
+    const cls = Math.abs(d) <= target*0.1 ? 'pos' : 'neg';
+    const sign = d > 0 ? '+' : '';
+    return `<span class="diff ${cls}">${sign}${fmt(d,0)}</span>`;
+  }
+
+  function scoreRecipe(totals, targets){
+    const dims = [
+      [totals.kcal, targets.kcal],
+      [totals.protein, targets.protein],
+      [totals.fat, targets.fat],
+      [totals.carbs, targets.carbs]
+    ].filter(([a,t]) => t > 0);
+    if(dims.length === 0) return null; // no targets set
+    const pctDiffs = dims.map(([a,t]) => Math.abs(a-t)/t);
+    const avg = pctDiffs.reduce((s,x)=>s+x,0)/pctDiffs.length;
+    return avg; // 0 = perfect match
+  }
+
+  function matchPill(score){
+    if(score === null) return '<span class="pill mid">—</span>';
+    if(score <= 0.1) return '<span class="pill good">' + Math.round((1-score)*100) + '%</span>';
+    if(score <= 0.3) return '<span class="pill mid">' + Math.round(Math.max(0,1-score)*100) + '%</span>';
+    return '<span class="pill bad">' + Math.round(Math.max(0,1-score)*100) + '%</span>';
+  }
+
+  function renderFinder(){
+    finderEmptyHint.style.display = recipes.length ? 'none' : 'block';
+    const targets = {
+      kcal: Math.max(0, Number(findKcal.value)||0),
+      protein: Math.max(0, Number(findProtein.value)||0),
+      fat: Math.max(0, Number(findFat.value)||0),
+      carbs: Math.max(0, Number(findCarbs.value)||0)
+    };
+
+    const scored = recipes.map(r => {
+      const totals = computeTotals(r.items);
+      const score = scoreRecipe(totals, targets);
+      return {r, totals, score};
+    });
+
+    scored.sort((a,b) => {
+      if(a.score === null && b.score === null) return a.r.name.localeCompare(b.r.name, 'ru');
+      if(a.score === null) return 1;
+      if(b.score === null) return -1;
+      return a.score - b.score;
+    });
+
+    finderResults.innerHTML = scored.map(({r, totals, score}) => `
+      <div class="finder-result">
+        <div><strong>${escapeHtml(r.name)}</strong></div>
+        <div class="num-cell">${fmt(totals.kcal,0)} ${diffLabel(totals.kcal, targets.kcal)}</div>
+        <div class="num-cell">${fmt(totals.protein)} ${diffLabel(totals.protein, targets.protein)}</div>
+        <div class="num-cell">${fmt(totals.fat)} ${diffLabel(totals.fat, targets.fat)}</div>
+        <div class="num-cell">${fmt(totals.carbs)} ${diffLabel(totals.carbs, targets.carbs)}</div>
+        <div>${matchPill(score)}</div>
+      </div>`).join('');
+  }
+
+  [findKcal, findProtein, findFat, findCarbs].forEach(inp => inp.addEventListener('input', renderFinder));
+
+  /* ---------------- Init ---------------- */
+  populateCalcSelect();
+  renderCalc();
+  renderIngredients();
+  renderRecipes();
+  renderFinder();
+
+})();
+</script>
+</body>
+</html>

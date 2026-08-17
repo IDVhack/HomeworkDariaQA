@@ -1,0 +1,91 @@
+{
+  "1": {
+    "matches": [
+      "Гречка (варёная)",
+      "Греческий йогурт 2%"
+    ]
+  },
+  "2": {
+    "count": 20,
+    "empty_msg_shown": false
+  },
+  "3": {
+    "empty_msg": "Ничего не найдено"
+  },
+  "4": {
+    "row_placeholder_before": 1,
+    "row_placeholder_after": 1,
+    "active_element_after_add": "calc-ing-search"
+  },
+  "5": {
+    "matches": [
+      "Гречка (варёная)",
+      "Греческий йогурт 2%"
+    ]
+  },
+  "6": {
+    "unit_pcs_disabled_after_select": true,
+    "unit_pcs_disabled_after_backspace": true,
+    "placeholder_row_before_add": 1,
+    "placeholder_row_after_add": 1
+  },
+  "7": {
+    "boundary_label_selected": "шт (0 г/шт)",
+    "unit_select_box": {
+      "x": 880.03125,
+      "y": 172,
+      "width": 150,
+      "height": 37
+    },
+    "row_after_adding_1_pcs": "ТестСоШтуками01 0 0 0 0 ✕",
+    "grams_stored_after_adding_1_pcs": "0.1"
+  },
+  "8": {
+    "row_text": "ТестОтрицательныйВес 50 5 1 1 — Изменить Удалить",
+    "stored_pieceGrams_guess": "NOT_FOUND_CHECK_KEY",
+    "localStorage_keys": [
+      "gramm_ingredients"
+    ]
+  },
+  "6b": {
+    "pcs_disabled_after_select": false,
+    "pcs_disabled_after_backspace": true
+  },
+  "8b_localStorage_check": null,
+  "9": {
+    "matching_rows": [
+      "Гречка (варёная) 220 8,4 2,2 42,6 ✕"
+    ],
+    "row_count": 1
+  },
+  "10": {
+    "input_scrollWidth": 3511,
+    "input_clientWidth": 461,
+    "body_scrollWidth": 1280,
+    "window_innerWidth": 1280,
+    "dropdown_box": {
+      "x": 277,
+      "y": 213,
+      "width": 463.03125,
+      "height": 32
+    },
+    "input_box": {
+      "x": 277,
+      "y": 174,
+      "width": 463.03125,
+      "height": 35
+    }
+  },
+  "11": {
+    "placeholder_rows_before_zero": 1,
+    "placeholder_rows_after_zero_add": 1,
+    "active_element_after_zero_add": "calc-ing-qty",
+    "placeholder_rows_after_one_add": 0,
+    "row_text_after_one_add": "Яблоко 0 0 0 0,1 ✕"
+  },
+  "12": {
+    "matches": [
+      "Гречка (варёная)"
+    ]
+  }
+}

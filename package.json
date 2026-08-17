@@ -1,0 +1,13 @@
+{
+  "name": "gramm-tests",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Автотесты для index.html проекта \"ГРАММ\" (первый автотест — сессия 4, дефект №2 из BUGS.md).",
+  "scripts": {
+    "test:defect-02": "node tests/defect-02-pcs-label-rounding.test.js"
+  },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  },
+  "notes": "Требуется локальный сервер с index.html (например: python3 -m http.server 8765) и установленный playwright (npm install playwright && npx playwright install chromium). Пакет @playwright/test не использован — недоступен для установки в песочнице тестировщика (403 от npm-реестра), см. sessions/session-4.md."
+}

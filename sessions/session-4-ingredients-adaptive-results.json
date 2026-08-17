@@ -1,0 +1,62 @@
+{
+  "1280": {
+    "window_innerWidth": 1280,
+    "body_scrollWidth": 1280,
+    "table_overflow": {
+      "scrollWidth": 858,
+      "clientWidth": 858
+    },
+    "first_card_overflow": {
+      "scrollWidth": 898,
+      "clientWidth": 898
+    }
+  },
+  "859": {
+    "window_innerWidth": 859,
+    "body_scrollWidth": 859,
+    "table_overflow": {
+      "scrollWidth": 781,
+      "clientWidth": 781
+    },
+    "first_card_overflow": {
+      "scrollWidth": 821,
+      "clientWidth": 821
+    }
+  },
+  "480": {
+    "window_innerWidth": 480,
+    "body_scrollWidth": 662,
+    "table_overflow": {
+      "scrollWidth": 584,
+      "clientWidth": 584
+    },
+    "first_card_overflow": {
+      "scrollWidth": 624,
+      "clientWidth": 624
+    }
+  },
+  "375": {
+    "window_innerWidth": 375,
+    "body_scrollWidth": 662,
+    "table_overflow": {
+      "scrollWidth": 584,
+      "clientWidth": 584
+    },
+    "first_card_overflow": {
+      "scrollWidth": 624,
+      "clientWidth": 624
+    }
+  },
+  "320": {
+    "window_innerWidth": 320,
+    "body_scrollWidth": 662,
+    "table_overflow": {
+      "scrollWidth": 584,
+      "clientWidth": 584
+    },
+    "first_card_overflow": {
+      "scrollWidth": 624,
+      "clientWidth": 624
+    }
+  }
+}
